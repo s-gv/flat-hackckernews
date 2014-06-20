@@ -16,6 +16,11 @@ if(location.hostname == "news.ycombinator.com") {
             }
             if(comments[i].depth == 1) {
                 comments[i].txt.style.fontSize = "0.7em";
+                comments[i].txt.parentElement.children[0].children[0].style.fontSize = "0.75em";
+                if(comments[i].txt.lastChild.textContent == "reply")
+                    comments[i].txt.lastChild.style.display = "none";
+                if(comments[i].txt.parentElement.lastChild.textContent == "reply")
+                    comments[i].txt.parentElement.lastChild.style.display = "none";
             }
         } 
     } else {
@@ -23,6 +28,9 @@ if(location.hostname == "news.ycombinator.com") {
         for(var i=0;i < comments.length; i++) {
             comments[i].rowele.style.display = "";
             comments[i].txt.style.fontSize = "";
+            comments[i].txt.parentElement.children[0].children[0].style.fontSize = "";
+            comments[i].txt.lastChild.style.display = "";
+            comments[i].txt.parentElement.lastChild.style.display = "";
         }
     }
 } else {
