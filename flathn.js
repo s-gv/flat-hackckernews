@@ -1,7 +1,7 @@
 if(location.hostname == "news.ycombinator.com") {
     var spacerImages = document.getElementsByTagName("img");
     var comments = Array.prototype.slice.call(spacerImages).filter(function (e) {
-        return ((e.src == "https://news.ycombinator.com/s.gif") && (e.width % 40 == 0) && (e.height == 1)); 
+        return ((e.src == "https://news.ycombinator.com/s.gif") && (e.width % 40 == 0) && (e.height == 1||e.height == 2)); 
     });
     comments = comments.map(function(e) {
         return { 'depth': e.width/40, // Integer
@@ -34,5 +34,5 @@ if(location.hostname == "news.ycombinator.com") {
         }
     }
 } else {
-    alert("This works with only Hacker News. Goto news.ycombinator.com and try again.");
+    alert("This works with only Hacker News. Open a discussion at news.ycombinator.com and try again.");
 }
