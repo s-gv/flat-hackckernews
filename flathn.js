@@ -21,11 +21,11 @@ if(location.hostname == "news.ycombinator.com") {
             }
             if(comments[i].depth >= 1) {
                 // Create a "Show More" HTML element
-                var pTag = document.createElement('p');
-                pTag.setAttribute('class', "showmore");
+                var uTag = document.createElement('u');
+                uTag.setAttribute('class', "showmore");
                 var aTag = document.createElement('a');
                 aTag.setAttribute('href',"#");
-                aTag.innerHTML = "Show More";
+                aTag.innerHTML = "more";
                 aTag.addEventListener("click", (function(n) {
                     return function(event) {
                         // User really wants to see this. Show the deeper comments at smaller font.
@@ -42,16 +42,20 @@ if(location.hostname == "news.ycombinator.com") {
                         event.preventDefault();
                     }
                 })(i), true);
-                pTag.appendChild(aTag);
-                // Don't display "reply" to deeper comments
-                if(comments[i].txt.lastChild.textContent == "reply")
-                    comments[i].txt.lastChild.style.display = "none";
-                if(comments[i].txt.parentElement.lastChild.textContent == "reply")
-                    comments[i].txt.parentElement.lastChild.style.display = "none";
+                uTag.appendChild(aTag);
+                // Display "Show More" only if there is something more to see.
                 if(i < (comments.length - 1)) {
                     if(comments[i+1].depth > comments[i].depth) {
-                        // Display "Show More" only if there is something more to see.
-                        comments[i].txt.appendChild(pTag);
+                        // "reply" seems to get associated with different parents occasionally 
+                        if(comments[i].txt.lastChild.textContent == "reply") {
+                            var replyParent = comments[i].txt.lastChild.children[0];
+                        }
+                        if(comments[i].txt.parentElement.lastChild.textContent == "reply") {
+                            var replyParent = comments[i].txt.parentElement.lastChild.children[0];
+                        }
+                        // Add a "more" link to see deeper comments
+                        replyParent.innerHTML += "&nbsp;";
+                        replyParent.appendChild(uTag);
                     }
                 }
                 // Reduce font size for deeper comments
