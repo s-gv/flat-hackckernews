@@ -19,15 +19,21 @@ if(location.hostname == "news.ycombinator.com") {
                 comments[i].rowele.style.display = "none";
             }
             if(comments[i].depth == 1) {
+                var pTag = document.createElement('p');
+                pTag.setAttribute('class', "showmore");
                 var aTag = document.createElement('a');
-                aTag.setAttribute('href',"yourlink.htm");
-                aTag.setAttribute('class', "showmore");
-                aTag.innerHTML = "<p>Show More</p>";
+                aTag.setAttribute('href',"#");
+                aTag.innerHTML = "Show More";
+                aTag.addEventListener("click", function(event) { 
+                    alert("bar");
+                    event.preventDefault();
+                });
+                pTag.appendChild(aTag);
                 if(comments[i].txt.lastChild.textContent == "reply")
                     comments[i].txt.lastChild.style.display = "none";
                 if(comments[i].txt.parentElement.lastChild.textContent == "reply")
                     comments[i].txt.parentElement.lastChild.style.display = "none";
-                comments[i].txt.appendChild(aTag);
+                comments[i].txt.appendChild(pTag);
             }
             if(comments[i].depth >= 1) {
                 comments[i].txt.style.fontSize = reducedFontSize; // reduce font size of depth=1 comment
