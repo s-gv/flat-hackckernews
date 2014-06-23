@@ -24,7 +24,7 @@ if(location.hostname == "news.ycombinator.com") {
                 var uTag = document.createElement('u');
                 uTag.setAttribute('class', "showmore");
                 var aTag = document.createElement('a');
-                aTag.setAttribute('href',"#");
+                aTag.setAttribute('href',"#"+Math.round(1e9*Math.random()));  // add random number to prevent link greying out as visited.
                 aTag.innerHTML = "more";
                 aTag.addEventListener("click", (function(n, moreElement) {
                     return function(event) {
