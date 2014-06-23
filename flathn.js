@@ -26,7 +26,7 @@ if(location.hostname == "news.ycombinator.com") {
                 var aTag = document.createElement('a');
                 aTag.setAttribute('href',"#");
                 aTag.innerHTML = "more";
-                aTag.addEventListener("click", (function(n) {
+                aTag.addEventListener("click", (function(n, moreElement) {
                     return function(event) {
                         // User really wants to see this. Show the deeper comments at smaller font.
                         for(var j=n+1; j < comments.length; j++) {
@@ -39,9 +39,10 @@ if(location.hostname == "news.ycombinator.com") {
                                 comments[j].txt.parentElement.lastChild.style.display = "";
                             }
                         }
+                        moreElement.style.display = "none"; // Don't show "More" anymore.
                         event.preventDefault();
                     }
-                })(i), true);
+                })(i, uTag), true);
                 uTag.appendChild(aTag);
                 // Display "Show More" only if there is something more to see.
                 if(i < (comments.length - 1)) {
