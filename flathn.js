@@ -29,20 +29,37 @@ if(location.hostname == "news.ycombinator.com") {
                     aTag.innerHTML = "more";
                     aTag.addEventListener("click", (function(n, moreElement) {
                         return function(event) {
-                            // User really wants to see this. Show the deeper comments at smaller font.
-                            for(var j=n+1; j < comments.length; j++) {
-                                if(comments[j].depth < (comments[n].depth + 1)) {
-                                    break;
-                                }
-                                if(comments[j].depth == (comments[n].depth + 1)) {
-                                    comments[j].rowele.style.display = ""; // show the row
-                                    if(comments[j].txt) { // Deal with [deleted] comments
-                                        comments[j].txt.lastChild.style.display = ""; // Show "reply"
-                                        comments[j].txt.parentElement.lastChild.style.display = "";
+                            if(moreElement.firstChild.innerHTML == "more") {
+                                // User really wants to see deeper comments. Show the deeper comments at smaller font.
+                                for(var j=n+1; j < comments.length; j++) {
+                                    if(comments[j].depth < (comments[n].depth + 1)) {
+                                        break;
+                                    }
+                                    if(comments[j].depth == (comments[n].depth + 1)) {
+                                        comments[j].rowele.style.display = ""; // show the row
+                                        if(comments[j].txt) { // Deal with [deleted] comments
+                                            comments[j].txt.lastChild.style.display = ""; // Show "reply"
+                                            comments[j].txt.parentElement.lastChild.style.display = "";
+                                        }
                                     }
                                 }
+                                moreElement.firstChild.innerHTML = "less";
+                            } else {
+                                // User clicked on "less" and doesn't want deeper comments
+                                for(var j=n+1; j < comments.length; j++) {
+                                    if(comments[j].depth < (comments[n].depth + 1)) {
+                                        break;
+                                    }
+                                    if(comments[j].depth == (comments[n].depth + 1)) {
+                                        comments[j].rowele.style.display = "none"; // show the row
+                                        if(comments[j].txt) { // Deal with [deleted] comments
+                                            comments[j].txt.lastChild.style.display = "none"; // Show "reply"
+                                            comments[j].txt.parentElement.lastChild.style.display = "none";
+                                        }
+                                    }
+                                }
+                                moreElement.firstChild.innerHTML = "more";
                             }
-                            moreElement.style.display = "none"; // Don't show "More" anymore.
                             event.preventDefault();
                         }
                     })(i, uTag), true);
