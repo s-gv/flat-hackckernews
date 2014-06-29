@@ -19,51 +19,55 @@ if(location.hostname == "news.ycombinator.com") {
                 // Don't display comments with depth > 1
                 comments[i].rowele.style.display = "none";
             }
-            if(comments[i].depth >= 1) {
-                // Create a "Show More" HTML element
-                var uTag = document.createElement('u');
-                uTag.setAttribute('class', "showmore");
-                var aTag = document.createElement('a');
-                aTag.setAttribute('href',"#"+Math.round(1e9*Math.random()));  // add random number to prevent link greying out as visited.
-                aTag.innerHTML = "more";
-                aTag.addEventListener("click", (function(n, moreElement) {
-                    return function(event) {
-                        // User really wants to see this. Show the deeper comments at smaller font.
-                        for(var j=n+1; j < comments.length; j++) {
-                            if(comments[j].depth < (comments[n].depth + 1)) {
-                                break;
+            if(comments[i].txt) { // Don't bother with [deleted] comments, just hide them.
+                if(comments[i].depth >= 1) { 
+                    // Create a "Show More" HTML element
+                    var uTag = document.createElement('u');
+                    uTag.setAttribute('class', "showmore");
+                    var aTag = document.createElement('a');
+                    aTag.setAttribute('href',"#"+Math.round(1e9*Math.random()));  // add random number to prevent link greying out as visited.
+                    aTag.innerHTML = "more";
+                    aTag.addEventListener("click", (function(n, moreElement) {
+                        return function(event) {
+                            // User really wants to see this. Show the deeper comments at smaller font.
+                            for(var j=n+1; j < comments.length; j++) {
+                                if(comments[j].depth < (comments[n].depth + 1)) {
+                                    break;
+                                }
+                                if(comments[j].depth == (comments[n].depth + 1)) {
+                                    comments[j].rowele.style.display = ""; // show the row
+                                    if(comments[j].txt) { // Deal with [deleted] comments
+                                        comments[j].txt.lastChild.style.display = ""; // Show "reply"
+                                        comments[j].txt.parentElement.lastChild.style.display = "";
+                                    }
+                                }
                             }
-                            if(comments[j].depth == (comments[n].depth + 1)) {
-                                comments[j].rowele.style.display = ""; // show the row
-                                comments[j].txt.lastChild.style.display = ""; // Show "reply"
-                                comments[j].txt.parentElement.lastChild.style.display = "";
+                            moreElement.style.display = "none"; // Don't show "More" anymore.
+                            event.preventDefault();
+                        }
+                    })(i, uTag), true);
+                    uTag.appendChild(aTag);
+                    // Display "Show More" only if there is something more to see.
+                    if(i < (comments.length - 1)) {
+                        if(comments[i+1].depth > comments[i].depth) {
+                            // "reply" seems to get associated with different parents occasionally 
+                            if(comments[i].txt.lastChild.textContent.match(/^reply\s?$/)) {
+                                var replyParent = comments[i].txt.lastChild.children[0];
                             }
+                            if(comments[i].txt.parentElement.lastChild.textContent.match(/^reply\s?$/)) {
+                                var replyParent = comments[i].txt.parentElement.lastChild.children[0];
+                            }
+                            // Add a "more" link to see deeper comments
+                            if(replyParent.innerHTML[replyParent.innerHTML.length-1] != " ") {
+                                replyParent.innerHTML += " ";
+                            }
+                            replyParent.appendChild(uTag);
                         }
-                        moreElement.style.display = "none"; // Don't show "More" anymore.
-                        event.preventDefault();
                     }
-                })(i, uTag), true);
-                uTag.appendChild(aTag);
-                // Display "Show More" only if there is something more to see.
-                if(i < (comments.length - 1)) {
-                    if(comments[i+1].depth > comments[i].depth) {
-                        // "reply" seems to get associated with different parents occasionally 
-                        if(comments[i].txt.lastChild.textContent.match(/^reply\s?$/)) {
-                            var replyParent = comments[i].txt.lastChild.children[0];
-                        }
-                        if(comments[i].txt.parentElement.lastChild.textContent.match(/^reply\s?$/)) {
-                            var replyParent = comments[i].txt.parentElement.lastChild.children[0];
-                        }
-                        // Add a "more" link to see deeper comments
-                        if(replyParent.innerHTML[replyParent.innerHTML.length-1] != " ") {
-                            replyParent.innerHTML += " ";
-                        }
-                        replyParent.appendChild(uTag);
-                    }
+                    // Reduce font size for deeper comments
+                    comments[i].txt.style.fontSize = reducedFontSize; // reduce font size of depth=1 comment
+                    comments[i].txt.parentElement.children[0].children[0].style.fontSize = reducedFontSize;
                 }
-                // Reduce font size for deeper comments
-                comments[i].txt.style.fontSize = reducedFontSize; // reduce font size of depth=1 comment
-                comments[i].txt.parentElement.children[0].children[0].style.fontSize = reducedFontSize;
             }
         } 
     } else {
@@ -76,10 +80,12 @@ if(location.hostname == "news.ycombinator.com") {
             comments[i].rowele.style.display = "";
             if(comments[i].depth >= 1) {
                 // Reset font-size and display props of all comments
-                comments[i].txt.style.fontSize = "";
-                comments[i].txt.parentElement.children[0].children[0].style.fontSize = "";
-                comments[i].txt.lastChild.style.display = "";
-                comments[i].txt.parentElement.lastChild.style.display = "";
+                if(comments[i].txt) { // deal with [deleted] comments]
+                    comments[i].txt.style.fontSize = "";
+                    comments[i].txt.parentElement.children[0].children[0].style.fontSize = "";
+                    comments[i].txt.lastChild.style.display = "";
+                    comments[i].txt.parentElement.lastChild.style.display = "";
+                }
             }
         }
     }
