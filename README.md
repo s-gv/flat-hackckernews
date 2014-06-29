@@ -1,7 +1,7 @@
 flat-hackernews
 ===============
 
-Hides threaded conversations in Hacker News and gives a flat view.
+Hides threaded conversations in Hacker News (as of June 2014) and gives a flat view.
 
 How-to-use
 ----------
