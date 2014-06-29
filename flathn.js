@@ -50,11 +50,22 @@ if(location.hostname == "news.ycombinator.com") {
                                     if(comments[j].depth < (comments[n].depth + 1)) {
                                         break;
                                     }
-                                    if(comments[j].depth == (comments[n].depth + 1)) {
-                                        comments[j].rowele.style.display = "none"; // show the row
+                                    if(comments[j].depth >= (comments[n].depth + 1)) {
+                                        comments[j].rowele.style.display = "none"; // hide the row
                                         if(comments[j].txt) { // Deal with [deleted] comments
-                                            comments[j].txt.lastChild.style.display = "none"; // Show "reply"
+                                            comments[j].txt.lastChild.style.display = "none"; // hide "reply"
                                             comments[j].txt.parentElement.lastChild.style.display = "none";
+                                            // turn "less" if it exists into "more" for this.
+                                            var lessElement = undefined;
+                                            if(comments[j].txt.lastChild.textContent == "reply less") {
+                                                lessElement = comments[j].txt.lastChild.children[0].lastChild;
+                                            }
+                                            if(comments[j].txt.parentElement.lastChild.textContent == "reply less") {
+                                                lessElement = comments[j].txt.parentElement.lastChild.children[0].lastChild;
+                                            }
+                                            if(lessElement) {
+                                                lessElement.lastChild.innerHTML = "more";
+                                            }
                                         }
                                     }
                                 }
@@ -67,7 +78,7 @@ if(location.hostname == "news.ycombinator.com") {
                     // Display "Show More" only if there is something more to see.
                     if(i < (comments.length - 1)) {
                         if(comments[i+1].depth > comments[i].depth) {
-                            // "reply" seems to get associated with different parents occasionally 
+                            // "reply" seems to get associated with different parents occasionally
                             if(comments[i].txt.lastChild.textContent.match(/^reply\s?$/)) {
                                 var replyParent = comments[i].txt.lastChild.children[0];
                             }
