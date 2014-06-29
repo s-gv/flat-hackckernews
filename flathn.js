@@ -1,5 +1,5 @@
 if(location.hostname == "news.ycombinator.com") {
-    var reducedFontSize = "0.8em";
+    var reducedFontSize = ""; // change to "0.8em" or so to reduce font size of comments.
     var spacerImages = document.getElementsByTagName("img"); // get all images because HN uses a small image for indenting
     var comments = Array.prototype.slice.call(spacerImages).filter(function (e) {
         // filter only spacer images to get near comments.
