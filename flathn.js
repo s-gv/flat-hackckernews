@@ -57,10 +57,10 @@ if(location.hostname == "news.ycombinator.com") {
                                             comments[j].txt.parentElement.lastChild.style.display = "none";
                                             // turn "less" if it exists into "more" for this.
                                             var lessElement = undefined;
-                                            if(comments[j].txt.lastChild.textContent == "reply less") {
+                                            if(comments[j].txt.lastChild.textContent.match(/^(reply|-----)\s? less$/)) {
                                                 lessElement = comments[j].txt.lastChild.children[0].lastChild;
                                             }
-                                            if(comments[j].txt.parentElement.lastChild.textContent == "reply less") {
+                                            if(comments[j].txt.parentElement.lastChild.textContent.match(/^(reply|-----)\s? less$/)) {
                                                 lessElement = comments[j].txt.parentElement.lastChild.children[0].lastChild;
                                             }
                                             if(lessElement) {
@@ -79,11 +79,12 @@ if(location.hostname == "news.ycombinator.com") {
                     if(i < (comments.length - 1)) {
                         if(comments[i+1].depth > comments[i].depth) {
                             // "reply" seems to get associated with different parents occasionally
-                            if(comments[i].txt.lastChild.textContent.match(/^reply\s?$/)) {
-                                var replyParent = comments[i].txt.lastChild.children[0];
+                            var replyParent = undefined;
+                            if(comments[i].txt.lastChild.textContent.match(/^(reply|-----)\s?$/)) {
+                            	replyParent = comments[i].txt.lastChild.children[0];
                             }
-                            if(comments[i].txt.parentElement.lastChild.textContent.match(/^reply\s?$/)) {
-                                var replyParent = comments[i].txt.parentElement.lastChild.children[0];
+                            if(comments[i].txt.parentElement.lastChild.textContent.match(/^(reply|-----)\s?$/)) {
+                            	replyParent = comments[i].txt.parentElement.lastChild.children[0];
                             }
                             // Add a "more" link to see deeper comments
                             if(replyParent.innerHTML[replyParent.innerHTML.length-1] != " ") {
