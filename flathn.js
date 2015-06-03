@@ -1,5 +1,4 @@
 if(location.hostname == "news.ycombinator.com") {
-    var reducedFontSize = ""; // change to "0.8em" or so to reduce font size of comments.
     var spacerImages = document.getElementsByTagName("img"); // get all images because HN uses a small image for indenting
     var comments = Array.prototype.slice.call(spacerImages).filter(function (e) {
         // filter only spacer images to get near comments.
@@ -7,10 +6,32 @@ if(location.hostname == "news.ycombinator.com") {
         // Chrome returns height as 2 and Firefox as 1. So accept both.
         return ((e.src == "https://news.ycombinator.com/s.gif") && (e.width % 40 == 0) && (e.height == 1||e.height == 2)); 
     });
+    var searchChildrenByClassName = function(node, name) {
+        if(node.className == name) {
+            return node;
+        }
+        for(var i=0;i < node.children.length; i++) {
+            var result = searchChildrenByClassName(node.children[i], name);
+            if(result != null) {
+                return result;
+            }
+        }
+        return null;
+    };
     comments = comments.map(function(e) {
-        return { 'depth': e.width/40, // Integer indicating depth of comment. depth = 0 is the main commet, 1 are replies to it etc.
-            'rowele': e.parentElement.parentElement.parentElement.parentElement.parentElement.parentElement, // HTML <tr> for the comment
-             'txt': e.parentElement.parentElement.lastChild.children[2] }; // HTML <span> for the comment. Comment text enclosed in this span
+        var commentRow = e.parentElement.parentElement.parentElement.parentElement.parentElement.parentElement;
+        var replyDiv = searchChildrenByClassName(commentRow, "reply");
+        var replyParent = null;
+        if(replyDiv != null) {
+            if(replyDiv.lastChild != null) {
+                replyParent = replyDiv.lastChild.children[0];
+            }
+        }
+        return { 
+            'depth': e.width/40, // Integer indicating depth of comment. depth = 0 is the main commet, 1 are replies to it etc.
+            'rowele': commentRow, // HTML <tr class="athing"> for the comment.
+            'replyparent': replyParent, // HTML <font> that contains the "reply" button.
+        };
     });
     if(typeof(__flathn__) == "undefined") {
         __flathn__ = true;
@@ -19,83 +40,49 @@ if(location.hostname == "news.ycombinator.com") {
                 // Don't display comments with depth > 1
                 comments[i].rowele.style.display = "none";
             }
-            if(comments[i].txt) { // Don't bother with [deleted] comments, just hide them.
-                if(comments[i].depth >= 1) { 
-                    // Create a "Show More" HTML element
-                    var uTag = document.createElement('u');
-                    uTag.setAttribute('class', "showmore");
-                    var aTag = document.createElement('a');
-                    aTag.setAttribute('href',"#"+Math.round(1e9*Math.random()));  // add random number to prevent link greying out as visited.
-                    aTag.innerHTML = "more";
-                    aTag.addEventListener("click", (function(n, moreElement) {
-                        return function(event) {
-                            if(moreElement.firstChild.innerHTML == "more") {
-                                // User really wants to see deeper comments. Show the deeper comments at smaller font.
-                                for(var j=n+1; j < comments.length; j++) {
-                                    if(comments[j].depth < (comments[n].depth + 1)) {
-                                        break;
-                                    }
-                                    if(comments[j].depth == (comments[n].depth + 1)) {
-                                        comments[j].rowele.style.display = ""; // show the row
-                                        if(comments[j].txt) { // Deal with [deleted] comments
-                                            comments[j].txt.lastChild.style.display = ""; // Show "reply"
-                                            comments[j].txt.parentElement.lastChild.style.display = "";
-                                        }
-                                    }
+            if(comments[i].depth >= 1) { 
+                // Create a "Show More" HTML element
+                var uTag = document.createElement('u');
+                uTag.setAttribute('class', "showmore");
+                var aTag = document.createElement('a');
+                aTag.setAttribute('href',"#"+Math.round(1e9*Math.random()));  // add random number to prevent link greying out as visited.
+                aTag.innerHTML = "more";
+                aTag.addEventListener("click", (function(n, moreElement) {
+                    return function(event) {
+                        if(moreElement.firstChild.innerHTML == "more") {
+                            // User really wants to see deeper comments. Show the deeper comments at smaller font.
+                            for(var j=n+1; j < comments.length; j++) {
+                                if(comments[j].depth < (comments[n].depth + 1)) {
+                                    break;
                                 }
-                                moreElement.firstChild.innerHTML = "less";
-                            } else {
-                                // User clicked on "less" and doesn't want deeper comments
-                                for(var j=n+1; j < comments.length; j++) {
-                                    if(comments[j].depth < (comments[n].depth + 1)) {
-                                        break;
-                                    }
-                                    if(comments[j].depth >= (comments[n].depth + 1)) {
-                                        comments[j].rowele.style.display = "none"; // hide the row
-                                        if(comments[j].txt) { // Deal with [deleted] comments
-                                            comments[j].txt.lastChild.style.display = "none"; // hide "reply"
-                                            comments[j].txt.parentElement.lastChild.style.display = "none";
-                                            // turn "less" if it exists into "more" for this.
-                                            var lessElement = undefined;
-                                            if(comments[j].txt.lastChild.textContent.match(/^(reply|-----)\s? less$/)) {
-                                                lessElement = comments[j].txt.lastChild.children[0].lastChild;
-                                            }
-                                            if(comments[j].txt.parentElement.lastChild.textContent.match(/^(reply|-----)\s? less$/)) {
-                                                lessElement = comments[j].txt.parentElement.lastChild.children[0].lastChild;
-                                            }
-                                            if(lessElement) {
-                                                lessElement.lastChild.innerHTML = "more";
-                                            }
-                                        }
-                                    }
+                                if(comments[j].depth == (comments[n].depth + 1)) {
+                                    comments[j].rowele.style.display = ""; // show the row
                                 }
-                                moreElement.firstChild.innerHTML = "more";
                             }
-                            event.preventDefault();
+                            moreElement.firstChild.innerHTML = "less";
+                        } else {
+                            // User clicked on "less" and doesn't want deeper comments
+                            for(var j=n+1; j < comments.length; j++) {
+                                if(comments[j].depth < (comments[n].depth + 1)) {
+                                    break;
+                                }
+                                if(comments[j].depth >= (comments[n].depth + 1)) {
+                                    comments[j].rowele.style.display = "none"; // hide the row
+                                }
+                            }
+                            moreElement.firstChild.innerHTML = "more";
                         }
-                    })(i, uTag), true);
-                    uTag.appendChild(aTag);
-                    // Display "Show More" only if there is something more to see.
-                    if(i < (comments.length - 1)) {
-                        if(comments[i+1].depth > comments[i].depth) {
-                            // "reply" seems to get associated with different parents occasionally
-                            var replyParent = undefined;
-                            if(comments[i].txt.lastChild.textContent.match(/^(reply|-----)\s?$/)) {
-                            	replyParent = comments[i].txt.lastChild.children[0];
-                            }
-                            if(comments[i].txt.parentElement.lastChild.textContent.match(/^(reply|-----)\s?$/)) {
-                            	replyParent = comments[i].txt.parentElement.lastChild.children[0];
-                            }
-                            // Add a "more" link to see deeper comments
-                            if(replyParent.innerHTML[replyParent.innerHTML.length-1] != " ") {
-                                replyParent.innerHTML += " ";
-                            }
-                            replyParent.appendChild(uTag);
+                        event.preventDefault();
+                    }
+                })(i, uTag), true);
+                uTag.appendChild(aTag);
+                // Display "Show More" only if there is something more to see.
+                if(i < (comments.length - 1)) {
+                    if(comments[i+1].depth > comments[i].depth) {
+                        if(comments[i].replyparent != null) { // replyparent will be null for [deleted] comments
+                            comments[i].replyparent.appendChild(uTag);
                         }
                     }
-                    // Reduce font size for deeper comments
-                    comments[i].txt.style.fontSize = reducedFontSize; // reduce font size of depth=1 comment
-                    comments[i].txt.parentElement.children[0].children[0].style.fontSize = reducedFontSize;
                 }
             }
         } 
@@ -107,15 +94,6 @@ if(location.hostname == "news.ycombinator.com") {
         }
         for(var i=0;i < comments.length; i++) {
             comments[i].rowele.style.display = "";
-            if(comments[i].depth >= 1) {
-                // Reset font-size and display props of all comments
-                if(comments[i].txt) { // deal with [deleted] comments]
-                    comments[i].txt.style.fontSize = "";
-                    comments[i].txt.parentElement.children[0].children[0].style.fontSize = "";
-                    comments[i].txt.lastChild.style.display = "";
-                    comments[i].txt.parentElement.lastChild.style.display = "";
-                }
-            }
         }
     }
 } else {
