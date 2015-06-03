@@ -6,7 +6,8 @@ Hides threaded conversations in Hacker News (as of June 2015) and gives a flat v
 How-to-use
 ----------
 
-- Drag this link [Flat/Threaded HN][1] to your bookmarks.
+- Drag this link <a href="javascript:function my_bookmarklet()
+                {alert('Hello World');}
+                my_bookmarklet();">Hello</a> to your bookmarks.
 - Open a discussion at [Hacker News](http://news.ycombinator.com/) and click on the ``Flat/Threaded HN`` bookmark. Comments at depth > 1 are hidden.
 
-[1]:javascript:alert('Hello World')
