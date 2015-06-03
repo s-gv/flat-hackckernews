@@ -31,6 +31,7 @@ if(location.hostname == "news.ycombinator.com") {
             'depth': e.width/40, // Integer indicating depth of comment. depth = 0 is the main commet, 1 are replies to it etc.
             'rowele': commentRow, // HTML <tr class="athing"> for the comment.
             'replyparent': replyParent, // HTML <font> that contains the "reply" button.
+            'morelessele': null // innerHTML of this element is "more" or "less".
         };
     });
     if(typeof(__flathn__) == "undefined") {
@@ -50,7 +51,7 @@ if(location.hostname == "news.ycombinator.com") {
                 aTag.addEventListener("click", (function(n, moreElement) {
                     return function(event) {
                         if(moreElement.firstChild.innerHTML == "more") {
-                            // User really wants to see deeper comments. Show the deeper comments at smaller font.
+                            // User really wants to see deeper comments. Show the deeper comments.
                             for(var j=n+1; j < comments.length; j++) {
                                 if(comments[j].depth < (comments[n].depth + 1)) {
                                     break;
@@ -68,6 +69,9 @@ if(location.hostname == "news.ycombinator.com") {
                                 }
                                 if(comments[j].depth >= (comments[n].depth + 1)) {
                                     comments[j].rowele.style.display = "none"; // hide the row
+                                    if(comments[j].morelessele != null) {
+                                        comments[j].morelessele.innerHTML = "more";
+                                    }
                                 }
                             }
                             moreElement.firstChild.innerHTML = "more";
@@ -81,6 +85,7 @@ if(location.hostname == "news.ycombinator.com") {
                     if(comments[i+1].depth > comments[i].depth) {
                         if(comments[i].replyparent != null) { // replyparent will be null for [deleted] comments
                             comments[i].replyparent.appendChild(uTag);
+                            comments[i].morelessele = comments[i].replyparent.lastChild.lastChild;
                         }
                     }
                 }
